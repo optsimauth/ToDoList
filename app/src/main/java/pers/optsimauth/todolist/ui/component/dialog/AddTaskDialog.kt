@@ -1,19 +1,19 @@
 package pers.optsimauth.todolist.ui.component.dialog
 
-import TaskDialog
+import CalendarTaskDialog
+import FourQuadrantTaskDialog
 import androidx.compose.runtime.Composable
-import pers.optsimauth.todolist.entity.CalendarTask
-import pers.optsimauth.todolist.entity.FourQuadrantTask
+import pers.optsimauth.todolist.entity.Task
 import java.time.LocalDate
 
 
 @Composable
-fun AddTaskDialog(
+fun AddCalendarTaskDialog(
     focusedDate: LocalDate,
-    onConfirm: (CalendarTask) -> Unit,
+    onConfirm: (Task.CalendarTask) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val initialTask = CalendarTask(
+    val initialTask = Task.CalendarTask(
         id = 0,
         startTime = "00:00",
         endTime = "00:00",
@@ -21,28 +21,21 @@ fun AddTaskDialog(
         day = focusedDate.toString(),
         status = false
     )
-    TaskDialog(
-        initialTask = initialTask,
-        onConfirm = onConfirm,
-        onDismiss = onDismiss,
-        isEditMode = false
-    )
+    CalendarTaskDialog(initialTask, onConfirm, onDismiss)
 }
 
+
 @Composable
-fun AddTaskDialog(
+fun AddFourQuadrantTaskDialog(
     focusedQuadrant: Int,
-    onConfirm: (FourQuadrantTask) -> Unit,
+    onConfirm: (Task.FourQuadrantTask) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val initialTask = FourQuadrantTask(
+    val initialTask = Task.FourQuadrantTask(
         id = 0,
         content = "",
         quadrant = focusedQuadrant,
         status = false
     )
-    TaskDialog(
-        initialTask = initialTask,
-        onConfirm = { onConfirm(it) },
-        onDismiss = { onDismiss() })
+    FourQuadrantTaskDialog(initialTask, onConfirm, onDismiss)
 }

@@ -1,31 +1,24 @@
 import androidx.compose.runtime.Composable
-import pers.optsimauth.todolist.entity.CalendarTask
-import pers.optsimauth.todolist.entity.FourQuadrantTask
+import pers.optsimauth.todolist.entity.Task
+
 
 @Composable
-fun EditTaskDialog(
-    task: CalendarTask,
-    onConfirm: (CalendarTask) -> Unit,
+fun EditCalendarTaskDialog(
+    initialTask: Task.CalendarTask,
+    onConfirm: (Task.CalendarTask) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    TaskDialog(
-        initialTask = task,
-        onConfirm = onConfirm,
-        onDismiss = onDismiss,
-        isEditMode = true
-    )
+
+    CalendarTaskDialog(initialTask, onConfirm, onDismiss, isEditMode = true)
 }
 
+
 @Composable
-fun EditTaskDialog(
-    task: FourQuadrantTask,
-    onConfirm: (FourQuadrantTask) -> Unit,
+fun EditFourQuadrantTaskDialog(
+    initialTask: Task.FourQuadrantTask,
+    onConfirm: (Task.FourQuadrantTask) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    TaskDialog(
-        initialTask = task,
-        onConfirm = onConfirm,
-        onDismiss = onDismiss,
-        isEditMode = true
-    )
+
+    FourQuadrantTaskDialog(initialTask, onConfirm, onDismiss, isEditMode = true)
 }

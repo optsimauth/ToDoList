@@ -8,20 +8,21 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pers.optsimauth.todolist.dao.CalendarTaskDao
-import pers.optsimauth.todolist.entity.CalendarTask
+import pers.optsimauth.todolist.entity.Task
 
 class CalendarTaskViewModel(private val dao: CalendarTaskDao) : ViewModel() {
 
     // Get all tasks
-    val allTasks: Flow<List<CalendarTask>> = dao.getAllTasks()
+    val allTasks: Flow<List<Task.CalendarTask>> = dao.getAllTasks()
+
 
     // Get tasks for a specific day
-    fun getTasksByDay(day: String): Flow<List<CalendarTask>> {
+    fun getTasksByDay(day: String): Flow<List<Task.CalendarTask>> {
         return dao.getTasksByDay(day)
     }
 
     // Insert a new task
-    fun insert(task: CalendarTask) {
+    fun insert(task: Task.CalendarTask) {
         viewModelScope.launch(Dispatchers.IO) {
             dao.insert(task)
             withContext(Dispatchers.Main) {
@@ -31,7 +32,7 @@ class CalendarTaskViewModel(private val dao: CalendarTaskDao) : ViewModel() {
     }
 
     // Update an existing task
-    fun update(task: CalendarTask) {
+    fun update(task: Task.CalendarTask) {
         viewModelScope.launch(Dispatchers.IO) {
             dao.update(task)
             withContext(Dispatchers.Main) {
@@ -42,7 +43,7 @@ class CalendarTaskViewModel(private val dao: CalendarTaskDao) : ViewModel() {
     }
 
     // Delete a task
-    fun delete(task: CalendarTask) {
+    fun delete(task: Task.CalendarTask) {
         viewModelScope.launch(Dispatchers.IO) {
             dao.delete(task)
             withContext(Dispatchers.Main) {

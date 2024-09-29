@@ -1,19 +1,20 @@
 package pers.optsimauth.todolist
 
-import pers.optsimauth.todolist.entity.CalendarTask
-import pers.optsimauth.todolist.entity.FourQuadrantTask
-import pers.optsimauth.todolist.ui.colorscheme.blue
-import pers.optsimauth.todolist.ui.colorscheme.green
-import pers.optsimauth.todolist.ui.colorscheme.red
-import pers.optsimauth.todolist.ui.colorscheme.yellow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import pers.optsimauth.todolist.config.colorscheme.blue
+import pers.optsimauth.todolist.config.colorscheme.green
+import pers.optsimauth.todolist.config.colorscheme.red
+import pers.optsimauth.todolist.config.colorscheme.yellow
+import pers.optsimauth.todolist.entity.Task
 
 object Utils {
 
-    fun getColorListOfCalendarTaskList(calendarTaskList: List<CalendarTask>) =
+    fun getColorListOfCalendarTaskList(calendarTaskList: List<Task.CalendarTask>) =
         calendarTaskList.map { getColorOfCalendarTask(it) }
 
 
-    fun getColorOfCalendarTask(calendarTask: CalendarTask) =
+    fun getColorOfCalendarTask(calendarTask: Task.CalendarTask) =
         when {
             calendarTask.startTime == "00:00" && calendarTask.endTime == "00:00" -> green
             calendarTask.startTime == "00:00" -> red
@@ -21,13 +22,17 @@ object Utils {
             else -> yellow
         }
 
-    fun getColorOfFourQuadrantTask(fourQuadrantTask: FourQuadrantTask) =
-        when (fourQuadrantTask.quadrant) {
+    fun getColorOfQuadrant(quadrant: Int) =
+        when (quadrant) {
             1 -> red
             2 -> yellow
             3 -> blue
             4 -> green
             else -> throw IllegalArgumentException("Invalid quadrant number")
         }
+
+    fun invertColor(color: Color): Color {
+        return Color(0xFFFFFF - color.toArgb())
+    }
 
 }

@@ -7,19 +7,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import pers.optsimauth.todolist.dao.FourQuadrantTaskDao
-import pers.optsimauth.todolist.entity.FourQuadrantTask
+import pers.optsimauth.todolist.entity.Task
 
 class FourQuadrantTaskViewModel(private val dao: FourQuadrantTaskDao) : ViewModel() {
 
 
     // Get tasks by quadrant
-    fun getTasksByQuadrant(quadrant: Int): Flow<List<FourQuadrantTask>> {
+    fun getTasksByQuadrant(quadrant: Int): Flow<List<Task.FourQuadrantTask>> {
         return dao.getTasksByQuadrant(quadrant)
 
     }
 
     // Insert a new task
-    fun insert(task: FourQuadrantTask) {
+    fun insert(task: Task.FourQuadrantTask) {
         viewModelScope.launch(Dispatchers.IO) {
 
             dao.insert(task)
@@ -27,7 +27,7 @@ class FourQuadrantTaskViewModel(private val dao: FourQuadrantTaskDao) : ViewMode
     }
 
     // Update an existing task
-    fun update(task: FourQuadrantTask) {
+    fun update(task: Task.FourQuadrantTask) {
         viewModelScope.launch(Dispatchers.IO) {
 
             dao.update(task)

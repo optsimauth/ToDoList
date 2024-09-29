@@ -42,7 +42,7 @@ fun FourQuadrant(
 
         Row(modifier = Modifier.weight(1f)) {
             Quadrant(
-                title = "重要且紧急",
+                quadrantTitle = "重要且紧急",
                 tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(1)
                     .collectAsState(
                         initial = emptyList()
@@ -60,7 +60,7 @@ fun FourQuadrant(
                 modifier = Modifier.weight(1f)
             )
             Quadrant(
-                title = "重要不紧急",
+                quadrantTitle = "重要不紧急",
                 tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(2)
                     .collectAsState(
                         initial = emptyList()
@@ -77,7 +77,7 @@ fun FourQuadrant(
         }
         Row(modifier = Modifier.weight(1f)) {
             Quadrant(
-                title = "不重要但紧急",
+                quadrantTitle = "不重要但紧急",
                 tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(3)
                     .collectAsState(
                         initial = emptyList()
@@ -92,7 +92,7 @@ fun FourQuadrant(
                 modifier = Modifier.weight(1f)
             )
             Quadrant(
-                title = "不重要不紧急",
+                quadrantTitle = "不重要不紧急",
                 tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(4)
                     .collectAsState(
                         initial = emptyList()

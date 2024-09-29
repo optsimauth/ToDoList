@@ -28,9 +28,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import pers.optsimauth.todolist.database.CalendarTaskDatabase
-import pers.optsimauth.todolist.entity.FourQuadrantTask
-import pers.optsimauth.todolist.ui.component.dialog.AddTaskDialog
+import pers.optsimauth.todolist.database.TaskDatabase
+import pers.optsimauth.todolist.entity.Task
+import pers.optsimauth.todolist.ui.component.dialog.AddCalendarTaskDialog
+import pers.optsimauth.todolist.ui.component.dialog.AddFourQuadrantTaskDialog
 import pers.optsimauth.todolist.ui.screen.FourQuadrant
 import pers.optsimauth.todolist.ui.screen.ToDoCalendar
 import pers.optsimauth.todolist.ui.theme.ToDoListTheme
@@ -46,13 +47,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val calendarTaskDao = CalendarTaskDatabase.getDatabase(this).calendarTaskDao()
+        val calendarTaskDao = TaskDatabase.getDatabase(this).calendarTaskDao()
         val viewModelFactory = CalendarTaskViewModelFactory(calendarTaskDao)
         val calendarTaskViewModel =
             ViewModelProvider(this, viewModelFactory)[CalendarTaskViewModel::class.java]
 
 
-        val fourQuadrantTaskDao = CalendarTaskDatabase.getDatabase(this).fourQuadrantTaskDao()
+        val fourQuadrantTaskDao = TaskDatabase.getDatabase(this).fourQuadrantTaskDao()
         val fourQuadrantViewModelFactory = FourQuadrantTaskViewModelFactory(fourQuadrantTaskDao)
         val fourQuadrantTaskViewModel =
             ViewModelProvider(
@@ -62,7 +63,7 @@ class MainActivity : ComponentActivity() {
 
 
         calendarTaskViewModel.deleteAllCheckedTasks()
-
+        fourQuadrantTaskViewModel.deleteAllCheckedTasks()
 
         setContent {
             ToDoListTheme {
@@ -89,6 +90,8 @@ fun App(
     var showFourQuadrantAddTaskDialog by remember { mutableStateOf(false) }
     var focusedQuadrant by remember { mutableIntStateOf(1) }
 
+
+
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -109,7 +112,7 @@ fun App(
                 onClick = {
                     when (currentRoute) {
                         "ToDoCalendar" -> showToDoCalendarAddTaskDialog = true
-                        "FourQuadrant" -> showToDoCalendarAddTaskDialog = true
+                        "FourQuadrant" -> showFourQuadrantAddTaskDialog = true
                     }
                 }
             ) {
@@ -138,7 +141,7 @@ fun App(
     }
 
     if (showToDoCalendarAddTaskDialog) {
-        AddTaskDialog(
+        AddCalendarTaskDialog(
             focusedDate = focusedDate,
             onConfirm = { calendarTask ->
                 calendarTaskViewModel.insert(calendarTask)
@@ -149,9 +152,9 @@ fun App(
     }
 
     if (showFourQuadrantAddTaskDialog) {
-        AddTaskDialog(
+        AddFourQuadrantTaskDialog(
             focusedQuadrant = focusedQuadrant,
-            onConfirm = { fourQuadrantTask: FourQuadrantTask ->
+            onConfirm = { fourQuadrantTask: Task.FourQuadrantTask ->
                 fourQuadrantTaskViewModel.insert(fourQuadrantTask)
                 showFourQuadrantAddTaskDialog = false
             },

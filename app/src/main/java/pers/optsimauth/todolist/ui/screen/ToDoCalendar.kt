@@ -57,15 +57,15 @@ import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.WeekDay
 import com.kizitonwose.calendar.core.daysOfWeek
 import pers.optsimauth.todolist.Utils
-import pers.optsimauth.todolist.entity.CalendarTask
-import pers.optsimauth.todolist.ui.colorscheme.onSurface
-import pers.optsimauth.todolist.ui.colorscheme.outlineVariant
-import pers.optsimauth.todolist.ui.colorscheme.primary
-import pers.optsimauth.todolist.ui.colorscheme.primaryContainer
-import pers.optsimauth.todolist.ui.colorscheme.scrim
-import pers.optsimauth.todolist.ui.colorscheme.secondary
-import pers.optsimauth.todolist.ui.colorscheme.surface
-import pers.optsimauth.todolist.ui.component.dialog.TasksList
+import pers.optsimauth.todolist.config.colorscheme.onSurface
+import pers.optsimauth.todolist.config.colorscheme.outlineVariant
+import pers.optsimauth.todolist.config.colorscheme.primary
+import pers.optsimauth.todolist.config.colorscheme.primaryContainer
+import pers.optsimauth.todolist.config.colorscheme.scrim
+import pers.optsimauth.todolist.config.colorscheme.secondary
+import pers.optsimauth.todolist.config.colorscheme.surface
+import pers.optsimauth.todolist.entity.Task
+import pers.optsimauth.todolist.ui.component.CalendarTasksList
 import pers.optsimauth.todolist.viewmodel.CalendarTaskViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -243,7 +243,7 @@ fun MonthCalendarView(
         val tasks by calendarTaskViewModel.getTasksByDay(day = focusedDate.toString())
             .collectAsState(initial = emptyList())
 
-        TasksList(tasks = tasks, onTaskChange = { calendarTaskViewModel.update(it) })
+        CalendarTasksList(tasks = tasks, onTaskChange = { calendarTaskViewModel.update(it) })
 
     }
 }
@@ -322,7 +322,7 @@ fun WeekCalendarView(
         val tasks by calendarTaskViewModel.getTasksByDay(day = focusedDate.toString())
             .collectAsState(initial = emptyList())
 
-        TasksList(tasks = tasks, onTaskChange = { calendarTaskViewModel.update(it) })
+        CalendarTasksList(tasks = tasks, onTaskChange = { calendarTaskViewModel.update(it) })
     }
 }
 
@@ -330,7 +330,7 @@ fun WeekCalendarView(
 @Composable
 fun MonthDay(
     day: CalendarDay,
-    calendarTaskList: List<CalendarTask> = emptyList(),
+    calendarTaskList: List<Task.CalendarTask> = emptyList(),
     isFocused: Boolean,
     onDayClick: () -> Unit = {},
 ) {
@@ -354,7 +354,7 @@ fun MonthDay(
 @Composable
 fun WeekDay(
     day: WeekDay,
-    calendarTaskList: List<CalendarTask>,
+    calendarTaskList: List<Task.CalendarTask>,
     isFocused: Boolean,
     onDayClick: () -> Unit = {},
 ) {
@@ -377,7 +377,7 @@ fun DayContent(
     isToday: Boolean,
     isFocused: Boolean,
     textColor: Color,
-    calendarTaskList: List<CalendarTask>,
+    calendarTaskList: List<Task.CalendarTask>,
     onDayClick: () -> Unit,
     dayText: String,
 ) {
