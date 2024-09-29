@@ -1,4 +1,4 @@
-package pers.optsimauth.todolist.ui.dialog
+package pers.optsimauth.todolist.ui.component.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

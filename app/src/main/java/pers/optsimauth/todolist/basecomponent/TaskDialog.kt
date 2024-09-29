@@ -6,16 +6,20 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import pers.optsimauth.todolist.entity.CalendarTask
-import pers.optsimauth.todolist.ui.dialog.InputTimeDialog
+import pers.optsimauth.todolist.entity.FourQuadrantTask
+import pers.optsimauth.todolist.ui.component.dialog.InputTimeDialog
 
 @Composable
 fun TaskDialog(
@@ -34,6 +38,7 @@ fun TaskDialog(
         title = { Text(text = if (isEditMode) "编辑任务" else "添加任务") },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
                 Text(
                     text = "$taskStartTime ~ $taskEndTime",
                     modifier = Modifier
@@ -42,6 +47,7 @@ fun TaskDialog(
                     textAlign = TextAlign.Center,
                     fontSize = 24.sp
                 )
+
                 OutlinedTextField(
                     value = taskContent,
                     onValueChange = { taskContent = it },
@@ -81,4 +87,55 @@ fun TaskDialog(
             onDismiss = { showInputTimeDialog = false }
         )
     }
+}
+
+@Composable
+fun TaskDialog(
+    initialTask: FourQuadrantTask,
+    onConfirm: (FourQuadrantTask) -> Unit,
+    onDismiss: () -> Unit,
+    isEditMode: Boolean = false,
+) {
+    var taskContent by remember { mutableStateOf(initialTask.content) }
+    val focusRequester = remember { FocusRequester() }
+
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = if (isEditMode) "编辑任务" else "添加任务") },
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                OutlinedTextField(
+                    value = taskContent,
+                    onValueChange = { taskContent = it },
+                    label = { Text("任务内容") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val updatedTask = initialTask.copy(
+                    content = taskContent,
+                )
+                onConfirm(updatedTask)
+            }) {
+                Text(if (isEditMode) "确认" else "添加")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消")
+            }
+        }
+    )
+
+
 }

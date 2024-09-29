@@ -3,7 +3,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun MultiColorCircle(
@@ -15,8 +14,8 @@ fun MultiColorCircle(
     Canvas(modifier = modifier) {
         val adjustedGapAngle = if (segments == 1) 0f else gapAngle
         val sweepAngle = (360f - segments * adjustedGapAngle) / segments
-        val radius = size.minDimension / 2
-        val strokeWidth = (size.minDimension * 0.1f).coerceAtMost(20.dp.toPx())
+        val radius = size.minDimension / 2.58f
+        val strokeWidth = (size.minDimension * 0.085f)
 
 
         for (i in 0 until segments) {
