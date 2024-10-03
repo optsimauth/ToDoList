@@ -11,10 +11,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,9 +32,10 @@ fun <T : Task> TaskItem(
     showContent: Boolean = true,
     customContent: @Composable (() -> Unit)? = null,
 ) {
-    var checkStatus by remember { mutableStateOf(task.status) }
+    // 使用 task.status 作为 key
     val checkBoxColor = getColor(task)
     val text = getText(task)
+
     Card(
         modifier = Modifier
             .background(surface)
@@ -49,9 +46,8 @@ fun <T : Task> TaskItem(
         Column(modifier = Modifier.padding(4.dp)) {
             Row(verticalAlignment = if (showContent) Alignment.CenterVertically else Alignment.Top) {
                 Checkbox(
-                    checked = checkStatus,
+                    checked = task.status, // 直接使用 task.status 而不是本地状态
                     onCheckedChange = { isChecked ->
-                        checkStatus = isChecked
                         val taskTmp = when (task) {
                             is Task.CalendarTask -> task.copy(status = isChecked) as T
                             is Task.FourQuadrantTask -> task.copy(status = isChecked) as T
@@ -70,7 +66,7 @@ fun <T : Task> TaskItem(
                     text = text,
                     color = onSurface,
                     modifier = Modifier.padding(top = if (showContent) 0.dp else 7.dp),
-                    textDecoration = if (checkStatus) TextDecoration.LineThrough else TextDecoration.None
+                    textDecoration = if (task.status) TextDecoration.LineThrough else TextDecoration.None
                 )
             }
             if (showContent) {
@@ -78,7 +74,7 @@ fun <T : Task> TaskItem(
                     text = task.content,
                     color = onSurface,
                     modifier = Modifier.padding(start = 11.dp),
-                    textDecoration = if (checkStatus) TextDecoration.LineThrough else TextDecoration.None
+                    textDecoration = if (task.status) TextDecoration.LineThrough else TextDecoration.None
                 )
             }
             customContent?.invoke()

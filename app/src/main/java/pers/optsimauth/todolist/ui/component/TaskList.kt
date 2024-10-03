@@ -23,12 +23,15 @@ fun <T : Task> TaskList(
     var selectedTask by remember { mutableStateOf<T?>(null) }
 
     LazyColumn {
-        items(tasks) { task ->
+        items(items = tasks,
+            key = { it.id }) { task ->
+
             taskItem(
                 task = task,
                 onTaskClick = { selectedTask = it },
                 onTaskStatusChange = { updatedTask -> onTaskChange(updatedTask) }
             )
+            
         }
     }
 
