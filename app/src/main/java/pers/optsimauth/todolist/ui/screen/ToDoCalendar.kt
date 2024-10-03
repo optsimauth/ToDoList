@@ -2,7 +2,6 @@ package pers.optsimauth.todolist.ui.screen
 
 import MultiColorCircle
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -41,20 +39,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.WeekCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.compose.weekcalendar.rememberWeekCalendarState
-import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.OutDateStyle
-import com.kizitonwose.calendar.core.WeekDay
+import com.kizitonwose.calendar.core.Week
 import com.kizitonwose.calendar.core.daysOfWeek
 import pers.optsimauth.todolist.Utils
 import pers.optsimauth.todolist.config.colorscheme.onSurface
@@ -84,87 +80,109 @@ fun ToDoCalendar(
     var isMonthView by remember { mutableStateOf(true) }
     var focusedDate by remember { mutableStateOf(LocalDate.now()) }
 
+    Column(modifier = Modifier.fillMaxSize()) {
+        CalendarHeader(
+            isMonthView = isMonthView,
+            onViewTypeChange = { isMonthView = it }
+        )
 
-    Column(
+        AnimatedCalendarContent(
+            isMonthView = isMonthView,
+            focusedDate = focusedDate,
+            calendarTaskViewModel = calendarTaskViewModel,
+            onDateFocused = { date ->
+                onDateFocused(date)
+                focusedDate = date
+            }
+        )
+    }
+}
+
+@Composable
+private fun CalendarHeader(
+    isMonthView: Boolean,
+    onViewTypeChange: (Boolean) -> Unit,
+) {
+    Row(
         modifier = Modifier
-            .fillMaxSize()
-
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = if (isMonthView) "月视图" else "周视图",
-                style = MaterialTheme.typography.titleMedium
+        Text(
+            text = if (isMonthView) "月视图" else "周视图",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Row {
+            CalendarViewButton(
+                isSelected = !isMonthView,
+                icon = Icons.Default.CalendarViewWeek,
+                onClick = { onViewTypeChange(false) }
             )
-
-            Row {
-                IconButton(onClick = { isMonthView = false }) {
-                    Icon(
-                        Icons.Default.CalendarViewWeek,
-                        contentDescription = null,
-                        tint = if (!isMonthView) primary else outlineVariant
-                    )
-                }
-                IconButton(onClick = { isMonthView = true }) {
-                    Icon(
-                        Icons.Default.CalendarMonth,
-                        contentDescription = null,
-                        tint = if (isMonthView) primary else outlineVariant
-                    )
-                }
-            }
-        }
-
-        AnimatedContent(
-            targetState = isMonthView,
-            transitionSpec = {
-                if (targetState) {
-                    slideInVertically { height -> height } + fadeIn() togetherWith
-                            slideOutVertically { height -> -height } + fadeOut()
-                } else {
-                    slideInVertically { height -> -height } + fadeIn() togetherWith
-                            slideOutVertically { height -> height } + fadeOut()
-                }.using(
-                    SizeTransform(clip = false)
-                )
-            }
-        ) { targetIsMonthView ->
-            if (targetIsMonthView) {
-                MonthCalendarView(
-                    focusedDate = focusedDate,
-                    calendarTaskViewModel = calendarTaskViewModel,
-                    onDateFocused = {
-                        onDateFocused(it) //用于判断floatingActionButton添加哪天的日期
-                        focusedDate = it //为选择日期画圈
-                    }
-                )
-            } else {
-                WeekCalendarView(
-                    focusedDate = focusedDate,
-                    calendarTaskViewModel = calendarTaskViewModel,
-                    onDateFocused = {
-                        onDateFocused(it)
-                        focusedDate = it
-                    },
-                )
-            }
+            CalendarViewButton(
+                isSelected = isMonthView,
+                icon = Icons.Default.CalendarMonth,
+                onClick = { onViewTypeChange(true) }
+            )
         }
     }
 }
 
 @Composable
-fun MonthCalendarView(
+private fun CalendarViewButton(
+    isSelected: Boolean,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit,
+) {
+    IconButton(onClick = onClick) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = if (isSelected) primary else outlineVariant
+        )
+    }
+}
+
+@Composable
+private fun AnimatedCalendarContent(
+    isMonthView: Boolean,
+    focusedDate: LocalDate,
+    calendarTaskViewModel: CalendarTaskViewModel,
+    onDateFocused: (LocalDate) -> Unit,
+) {
+    AnimatedContent(
+        targetState = isMonthView,
+        transitionSpec = {
+            val slideDirection = if (targetState) 1 else -1
+            slideInVertically { height -> height * slideDirection } + fadeIn() togetherWith
+                    slideOutVertically { height -> -height * slideDirection } + fadeOut()
+        }
+    ) { targetIsMonthView ->
+        if (targetIsMonthView) {
+            MonthCalendarView(
+                focusedDate = focusedDate,
+                calendarTaskViewModel = calendarTaskViewModel,
+                onDateFocused = onDateFocused
+            )
+        } else {
+            WeekCalendarView(
+                focusedDate = focusedDate,
+                calendarTaskViewModel = calendarTaskViewModel,
+                onDateFocused = onDateFocused
+            )
+        }
+    }
+}
+
+@Composable
+private fun MonthCalendarView(
     focusedDate: LocalDate,
     calendarTaskViewModel: CalendarTaskViewModel,
     onDateFocused: (LocalDate) -> Unit,
 ) {
     val currentMonth = remember { YearMonth.now() }
-
     val startMonth = remember { currentMonth.minusMonths(100) }
     val endMonth = remember { currentMonth.plusMonths(50) }
     val daysOfWeek = remember { daysOfWeek() }
@@ -176,87 +194,37 @@ fun MonthCalendarView(
         outDateStyle = OutDateStyle.EndOfGrid
     )
 
-
-    Column {
-        HorizontalCalendar(state = state,
-            dayContent = { calendarDay ->
-                MonthDay(
-                    day = calendarDay,
-                    calendarTaskList = calendarTaskViewModel.getTasksByDay(day = calendarDay.date.toString())
-                        .collectAsState(initial = emptyList()).value,
-                    isFocused = calendarDay.date == focusedDate,
-                    onDayClick = {
-                        onDateFocused(calendarDay.date)
-                    }
+    CalendarContainer {
+        HorizontalCalendar(
+            state = state,
+            dayContent = { day ->
+                DayContent(
+                    date = day.date,
+                    position = day.position,
+                    calendarTaskViewModel = calendarTaskViewModel,
+                    focusedDate = focusedDate,
+                    onDateFocused = onDateFocused
                 )
             },
-            monthHeader = { calendarMonth ->
-
-                Text(
-                    text = "${calendarMonth.yearMonth.year}年${calendarMonth.yearMonth.month.value}月",
-                    modifier = Modifier
-                        .padding(8.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    color = onSurface
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(surface)
-                ) {
-                    DaysOfWeekTitle(daysOfWeek = daysOfWeek)
-                }
-                HorizontalDivider(color = scrim)
-            },
-            monthBody = { _, content ->
-                Box(
-                    modifier = Modifier.background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                surface, surface
-                            )
-                        )
-                    )
-                ) {
-                    content()
-                }
-            },
-            monthContainer = { _, container ->
-                val configuration = LocalConfiguration.current
-                val screenWidth = configuration.screenWidthDp.dp
-                Box(
-                    modifier = Modifier
-                        .width(screenWidth * 1)
-                        .padding(8.dp)
-                        .clip(shape = RoundedCornerShape(8.dp))
-                        .border(
-                            color = secondary, width = 1.dp, shape = RoundedCornerShape(8.dp)
-                        )
-                ) {
-                    container()
-                }
+            monthHeader = { month ->
+                MonthHeader(month = month, daysOfWeek = daysOfWeek)
             }
         )
-        // 获取指定日期的任务
-        val tasks by calendarTaskViewModel.getTasksByDay(day = focusedDate.toString())
-            .collectAsState(initial = emptyList())
 
-        CalendarTasksList(tasks = tasks, onTaskChange = { calendarTaskViewModel.update(it) })
-
+        CalendarTasksList(
+            focusedDate = focusedDate,
+            calendarTaskViewModel = calendarTaskViewModel
+        )
     }
 }
 
 @Composable
-fun WeekCalendarView(
+private fun WeekCalendarView(
     focusedDate: LocalDate,
     calendarTaskViewModel: CalendarTaskViewModel,
     onDateFocused: (LocalDate) -> Unit,
 ) {
     val currentDate = LocalDate.now()
-
-    // 初始化周历状态
     val state = rememberWeekCalendarState(
         startDate = currentDate.minusDays(400),
         endDate = currentDate.plusDays(200),
@@ -264,8 +232,7 @@ fun WeekCalendarView(
     )
     val daysOfWeek = remember { daysOfWeek() }
 
-    Column {
-        // 头部日期显示
+    CalendarContainer {
         Text(
             text = focusedDate.format(DateTimeFormatter.ofPattern("yyyy年MM月dd日")),
             modifier = Modifier.padding(8.dp),
@@ -282,104 +249,101 @@ fun WeekCalendarView(
             WeekCalendar(
                 state = state,
                 dayContent = { day ->
-                    WeekDay(
-                        day = day,
-                        calendarTaskList = calendarTaskViewModel.getTasksByDay(day = day.date.toString())
-                            .collectAsState(initial = emptyList()).value,
-                        isFocused = day.date == focusedDate,
-                        onDayClick = {
-                            onDateFocused(day.date)
-                        }
+                    DayContent(
+                        date = day.date,
+                        position = DayPosition.MonthDate,
+                        calendarTaskViewModel = calendarTaskViewModel,
+                        focusedDate = focusedDate,
+                        onDateFocused = onDateFocused
                     )
                 },
                 weekHeader = { week ->
-                    val firstDayOfWeek = week.days.first().date
-                    val weekNumber =
-                        firstDayOfWeek.get(WeekFields.of(Locale.getDefault()).weekOfYear())
-                    Text(
-                        text = "第${weekNumber}周",
-                        modifier = Modifier
-                            .padding(8.dp),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        color = onSurface
-                    )
-
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(surface)
-                    ) {
-                        DaysOfWeekTitle(daysOfWeek = daysOfWeek)
-                    }
-                    HorizontalDivider(color = scrim)
+                    WeekHeader(week = week, daysOfWeek = daysOfWeek)
                 }
             )
         }
 
-        // 显示当前选中日期的任务
-        val tasks by calendarTaskViewModel.getTasksByDay(day = focusedDate.toString())
-            .collectAsState(initial = emptyList())
-
-        CalendarTasksList(tasks = tasks, onTaskChange = { calendarTaskViewModel.update(it) })
+        CalendarTasksList(
+            focusedDate = focusedDate,
+            calendarTaskViewModel = calendarTaskViewModel
+        )
     }
 }
 
+@Composable
+private fun CalendarContainer(content: @Composable () -> Unit) {
+    Column {
+        content()
+    }
+}
 
 @Composable
-fun MonthDay(
-    day: CalendarDay,
-    calendarTaskList: List<Task.CalendarTask> = emptyList(),
-    isFocused: Boolean,
-    onDayClick: () -> Unit = {},
+private fun MonthHeader(month: CalendarMonth, daysOfWeek: List<DayOfWeek>) {
+    Column {
+        Text(
+            text = "${month.yearMonth.year}年${month.yearMonth.month.value}月",
+            modifier = Modifier.padding(8.dp),
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            color = onSurface
+        )
+        DaysOfWeekTitle(daysOfWeek = daysOfWeek)
+    }
+}
+
+@Composable
+private fun WeekHeader(week: Week, daysOfWeek: List<DayOfWeek>) {
+    Column {
+        val firstDayOfWeek = week.days.first().date
+        val weekNumber = firstDayOfWeek.get(WeekFields.of(Locale.getDefault()).weekOfYear())
+        Text(
+            text = "第${weekNumber}周",
+            modifier = Modifier.padding(8.dp),
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            color = onSurface
+        )
+        DaysOfWeekTitle(daysOfWeek = daysOfWeek)
+    }
+}
+
+@Composable
+private fun DayContent(
+    date: LocalDate,
+    position: DayPosition,
+    calendarTaskViewModel: CalendarTaskViewModel,
+    focusedDate: LocalDate,
+    onDateFocused: (LocalDate) -> Unit,
 ) {
-    val isToday = remember(day.date) { day.date == LocalDate.now() }
+    val calendarTaskList by calendarTaskViewModel.getTasksByDay(date.toString())
+        .collectAsState(initial = emptyList())
+
+    val isToday = remember(date) { date == LocalDate.now() }
+    val isFocused = date == focusedDate
     val textColor = when {
         isToday -> MaterialTheme.colorScheme.onPrimaryContainer
-        day.position == DayPosition.MonthDate -> MaterialTheme.colorScheme.onSurface
+        position == DayPosition.MonthDate -> MaterialTheme.colorScheme.onSurface
         else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
     }
 
-    DayContent(
+    DayContentLayout(
+        dayText = date.dayOfMonth.toString(),
         isToday = isToday,
         isFocused = isFocused,
         textColor = textColor,
         calendarTaskList = calendarTaskList,
-        onDayClick = onDayClick,
-        dayText = day.date.dayOfMonth.toString()
+        onDayClick = { onDateFocused(date) }
     )
 }
 
 @Composable
-fun WeekDay(
-    day: WeekDay,
-    calendarTaskList: List<Task.CalendarTask>,
-    isFocused: Boolean,
-    onDayClick: () -> Unit = {},
-) {
-    val isToday = remember(day.date) { day.date == LocalDate.now() }
-    val textColor =
-        if (isToday) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-
-    DayContent(
-        isToday = isToday,
-        isFocused = isFocused,
-        textColor = textColor,
-        calendarTaskList = calendarTaskList,
-        onDayClick = onDayClick,
-        dayText = day.date.dayOfMonth.toString(),
-    )
-}
-
-@Composable
-fun DayContent(
+private fun DayContentLayout(
+    dayText: String,
     isToday: Boolean,
     isFocused: Boolean,
     textColor: Color,
     calendarTaskList: List<Task.CalendarTask>,
     onDayClick: () -> Unit,
-    dayText: String,
 ) {
     Box(
         modifier = Modifier
@@ -401,18 +365,18 @@ fun DayContent(
             }
         }
 
-        val colorList = Utils.getColorListOfCalendarTaskList(calendarTaskList)
         if (calendarTaskList.isNotEmpty()) {
+            val colorList = Utils.getColorListOfCalendarTaskList(calendarTaskList)
             MultiColorCircle(
                 segments = calendarTaskList.size,
                 colors = colorList,
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             )
         }
 
         if (isFocused) {
             val color = primary
+
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawCircle(
                     color = color,
@@ -432,8 +396,12 @@ fun DayContent(
 }
 
 @Composable
-fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
-    Row(modifier = Modifier.fillMaxWidth()) {
+private fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(surface)
+    ) {
         for (dayOfWeek in daysOfWeek) {
             Text(
                 modifier = Modifier.weight(1f),
@@ -442,7 +410,21 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
             )
         }
     }
+    HorizontalDivider(color = scrim)
+}
 
+@Composable
+private fun CalendarTasksList(
+    focusedDate: LocalDate,
+    calendarTaskViewModel: CalendarTaskViewModel,
+) {
+    val tasks by calendarTaskViewModel.getTasksByDay(focusedDate.toString())
+        .collectAsState(initial = emptyList())
+
+    CalendarTasksList(
+        tasks = tasks,
+        onTaskChange = { calendarTaskViewModel.update(it) }
+    )
 }
 
 

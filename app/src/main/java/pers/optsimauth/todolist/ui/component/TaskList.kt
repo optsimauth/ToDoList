@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,12 +24,15 @@ fun <T : Task> TaskList(
     var selectedTask by remember { mutableStateOf<T?>(null) }
 
     LazyColumn {
-        items(tasks) { task ->
-            taskItem(
-                task = task,
-                onTaskClick = { selectedTask = it },
-                onTaskStatusChange = { updatedTask -> onTaskChange(updatedTask) }
-            )
+        items(items = tasks,
+            key = { it.id }) { task ->
+            key(task.id) {
+                taskItem(
+                    task = task,
+                    onTaskClick = { selectedTask = it },
+                    onTaskStatusChange = { updatedTask -> onTaskChange(updatedTask) }
+                )
+            }
         }
     }
 
