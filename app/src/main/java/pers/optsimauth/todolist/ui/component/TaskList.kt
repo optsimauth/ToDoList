@@ -31,7 +31,7 @@ fun <T : Task> TaskList(
                 onTaskClick = { selectedTask = it },
                 onTaskStatusChange = { updatedTask -> onTaskChange(updatedTask) }
             )
-            
+
         }
     }
 
