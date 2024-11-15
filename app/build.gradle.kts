@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.kapt)
+//    id("org.jetbrains.kotlin.kapt") version "1.9.0"
+//    id("com.google.devtools.ksp")
 }
 
 android {
@@ -41,7 +43,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.6"
     }
     packaging {
         resources {
@@ -57,10 +59,13 @@ android {
                 "proguard-rules.pro"
             )
         }
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+        }
     }
-    kapt {
-        correctErrorTypes = true
-    }
+
 
 }
 
@@ -89,5 +94,13 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.21")
+
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation("de.raphaelebner:roomdatabasebackup:1.0.1")
+
+//
+//    implementation("com.google.code.gson:gson:2.8.9")
+//    implementation("com.google.code.gson:gson-extras:2.8.9")
+
 }

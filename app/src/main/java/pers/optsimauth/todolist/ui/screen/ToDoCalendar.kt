@@ -342,7 +342,7 @@ private fun DayContentLayout(
     isToday: Boolean,
     isFocused: Boolean,
     textColor: Color,
-    calendarTaskList: List<Task.CalendarTask>,
+    calendarTaskList: List<Task.CalendarTaskEntity>,
     onDayClick: () -> Unit,
 ) {
     Box(
@@ -425,6 +425,7 @@ private fun CalendarTasksList(
         tasks = tasks,
         onTaskChange = { calendarTaskViewModel.update(it) }
     )
+
 }
 
 

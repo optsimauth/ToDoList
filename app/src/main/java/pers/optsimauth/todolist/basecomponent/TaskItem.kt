@@ -29,7 +29,7 @@ fun <T : Task> TaskItem(
     onTaskStatusChange: (T) -> Unit,
     getColor: (T) -> Color,
     getText: (T) -> String,
-    showContent: Boolean = true,
+    showTaskContent: Boolean = true,
     customContent: @Composable (() -> Unit)? = null,
 ) {
     // 使用 task.status 作为 key
@@ -44,13 +44,13 @@ fun <T : Task> TaskItem(
             .clickable { onTaskClick(task) }
     ) {
         Column(modifier = Modifier.padding(4.dp)) {
-            Row(verticalAlignment = if (showContent) Alignment.CenterVertically else Alignment.Top) {
+            Row(verticalAlignment = if (showTaskContent) Alignment.CenterVertically else Alignment.Top) {
                 Checkbox(
                     checked = task.status, // 直接使用 task.status 而不是本地状态
                     onCheckedChange = { isChecked ->
                         val taskTmp = when (task) {
-                            is Task.CalendarTask -> task.copy(status = isChecked) as T
-                            is Task.FourQuadrantTask -> task.copy(status = isChecked) as T
+                            is Task.CalendarTaskEntity -> task.copy(status = isChecked) as T
+                            is Task.FourQuadrantTaskEntity -> task.copy(status = isChecked) as T
                             else -> {
                                 throw IllegalArgumentException("Unsupported task type")
                             }
@@ -65,11 +65,11 @@ fun <T : Task> TaskItem(
                 Text(
                     text = text,
                     color = onSurface,
-                    modifier = Modifier.padding(top = if (showContent) 0.dp else 7.dp),
+                    modifier = Modifier.padding(top = if (showTaskContent) 0.dp else 7.dp),
                     textDecoration = if (task.status) TextDecoration.LineThrough else TextDecoration.None
                 )
             }
-            if (showContent) {
+            if (showTaskContent) {
                 Text(
                     text = task.content,
                     color = onSurface,
@@ -84,9 +84,9 @@ fun <T : Task> TaskItem(
 
 @Composable
 fun CalendarTaskItem(
-    task: Task.CalendarTask,
-    onTaskClick: (Task.CalendarTask) -> Unit,
-    onTaskStatusChange: (Task.CalendarTask) -> Unit,
+    task: Task.CalendarTaskEntity,
+    onTaskClick: (Task.CalendarTaskEntity) -> Unit,
+    onTaskStatusChange: (Task.CalendarTaskEntity) -> Unit,
 ) {
     TaskItem(
         task = task,
@@ -106,9 +106,9 @@ fun CalendarTaskItem(
 
 @Composable
 fun FourQuadrantTaskItem(
-    task: Task.FourQuadrantTask,
-    onTaskClick: (Task.FourQuadrantTask) -> Unit,
-    onTaskStatusChange: (Task.FourQuadrantTask) -> Unit,
+    task: Task.FourQuadrantTaskEntity,
+    onTaskClick: (Task.FourQuadrantTaskEntity) -> Unit,
+    onTaskStatusChange: (Task.FourQuadrantTaskEntity) -> Unit,
 ) {
     TaskItem(
         task = task,
@@ -116,7 +116,7 @@ fun FourQuadrantTaskItem(
         onTaskStatusChange = onTaskStatusChange,
         getColor = { Utils.getColorOfQuadrant(it.quadrant) },
         getText = { it.content },
-        showContent = false  // 不显示额外的内容文本
+        showTaskContent = false  // 不显示额外的内容文本
     )
 }
 

@@ -4,8 +4,8 @@ import pers.optsimauth.todolist.entity.Task
 
 @Composable
 fun EditCalendarTaskDialog(
-    initialTask: Task.CalendarTask,
-    onConfirm: (Task.CalendarTask) -> Unit,
+    initialTask: Task.CalendarTaskEntity,
+    onConfirm: (Task.CalendarTaskEntity) -> Unit,
     onDismiss: () -> Unit,
 ) {
 
@@ -15,8 +15,8 @@ fun EditCalendarTaskDialog(
 
 @Composable
 fun EditFourQuadrantTaskDialog(
-    initialTask: Task.FourQuadrantTask,
-    onConfirm: (Task.FourQuadrantTask) -> Unit,
+    initialTask: Task.FourQuadrantTaskEntity,
+    onConfirm: (Task.FourQuadrantTaskEntity) -> Unit,
     onDismiss: () -> Unit,
 ) {
 

@@ -37,14 +37,14 @@ import pers.optsimauth.todolist.entity.Task
 @Composable
 fun Quadrant(
     quadrantTitle: String,
-    tasks: List<Task.FourQuadrantTask>,
+    tasks: List<Task.FourQuadrantTaskEntity>,
     quadrant: Int,
     isFocused: Boolean,
     onQuadrantClick: (Int) -> Unit,
-    onTaskChange: (Task.FourQuadrantTask) -> Unit,
+    onTaskChange: (Task.FourQuadrantTaskEntity) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var selectedTask by remember { mutableStateOf<Task.FourQuadrantTask?>(null) }
+    var selectedTask by remember { mutableStateOf<Task.FourQuadrantTaskEntity?>(null) }
 
 
     Box(

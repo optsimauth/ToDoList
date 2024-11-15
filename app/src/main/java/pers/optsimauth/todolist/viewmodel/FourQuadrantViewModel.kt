@@ -13,13 +13,13 @@ class FourQuadrantTaskViewModel(private val dao: FourQuadrantTaskDao) : ViewMode
 
 
     // Get tasks by quadrant
-    fun getTasksByQuadrant(quadrant: Int): Flow<List<Task.FourQuadrantTask>> {
+    fun getTasksByQuadrant(quadrant: Int): Flow<List<Task.FourQuadrantTaskEntity>> {
         return dao.getTasksByQuadrant(quadrant)
 
     }
 
     // Insert a new task
-    fun insert(task: Task.FourQuadrantTask) {
+    fun insert(task: Task.FourQuadrantTaskEntity) {
         viewModelScope.launch(Dispatchers.IO) {
 
             dao.insert(task)
@@ -27,7 +27,7 @@ class FourQuadrantTaskViewModel(private val dao: FourQuadrantTaskDao) : ViewMode
     }
 
     // Update an existing task
-    fun update(task: Task.FourQuadrantTask) {
+    fun update(task: Task.FourQuadrantTaskEntity) {
         viewModelScope.launch(Dispatchers.IO) {
 
             dao.update(task)

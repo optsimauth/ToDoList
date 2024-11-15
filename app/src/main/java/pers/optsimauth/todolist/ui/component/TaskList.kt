@@ -48,7 +48,10 @@ fun <T : Task> TaskList(
 }
 
 @Composable
-fun CalendarTasksList(tasks: List<Task.CalendarTask>, onTaskChange: (Task.CalendarTask) -> Unit) {
+fun CalendarTasksList(
+    tasks: List<Task.CalendarTaskEntity>,
+    onTaskChange: (Task.CalendarTaskEntity) -> Unit,
+) {
     TaskList(
         tasks = tasks,
         onTaskChange = onTaskChange,
@@ -71,8 +74,8 @@ fun CalendarTasksList(tasks: List<Task.CalendarTask>, onTaskChange: (Task.Calend
 
 @Composable
 fun FourQuadrantTaskList(
-    tasks: List<Task.FourQuadrantTask>,
-    onTaskChange: (Task.FourQuadrantTask) -> Unit,
+    tasks: List<Task.FourQuadrantTaskEntity>,
+    onTaskChange: (Task.FourQuadrantTaskEntity) -> Unit,
 ) {
     TaskList(
         tasks = tasks,

@@ -14,7 +14,7 @@ sealed class Task {
         tableName = "calendar_tasks",
         indices = [Index(value = ["startTime"], unique = false)]
     )
-    data class CalendarTask(
+    data class CalendarTaskEntity(
         @PrimaryKey(autoGenerate = true) override val id: Int = 0,
         override val content: String,
         override val status: Boolean,
@@ -27,10 +27,21 @@ sealed class Task {
         tableName = "four_quadrant_tasks",
         indices = [Index(value = ["quadrant"], unique = false)]
     )
-    data class FourQuadrantTask(
+    data class FourQuadrantTaskEntity(
         @PrimaryKey(autoGenerate = true) override val id: Int = 0,
         override val content: String,
         override val status: Boolean,
         val quadrant: Int,
     ) : Task()
 }
+
+
+@Entity(
+    tableName = "notes"
+)
+data class NoteEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val content: String,
+    val title: String,
+    val updateDateTime: String,
+)

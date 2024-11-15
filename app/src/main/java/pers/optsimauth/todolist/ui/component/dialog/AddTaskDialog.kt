@@ -10,10 +10,10 @@ import java.time.LocalDate
 @Composable
 fun AddCalendarTaskDialog(
     focusedDate: LocalDate,
-    onConfirm: (Task.CalendarTask) -> Unit,
+    onConfirm: (Task.CalendarTaskEntity) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val initialTask = Task.CalendarTask(
+    val initialTask = Task.CalendarTaskEntity(
         id = 0,
         startTime = "00:00",
         endTime = "00:00",
@@ -28,10 +28,10 @@ fun AddCalendarTaskDialog(
 @Composable
 fun AddFourQuadrantTaskDialog(
     focusedQuadrant: Int,
-    onConfirm: (Task.FourQuadrantTask) -> Unit,
+    onConfirm: (Task.FourQuadrantTaskEntity) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val initialTask = Task.FourQuadrantTask(
+    val initialTask = Task.FourQuadrantTaskEntity(
         id = 0,
         content = "",
         quadrant = focusedQuadrant,

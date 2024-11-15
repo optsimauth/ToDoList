@@ -50,8 +50,8 @@ fun <T : Task> TaskDialog(
 
 @Composable
 fun CalendarTaskDialog(
-    initialTask: Task.CalendarTask,
-    onConfirm: (Task.CalendarTask) -> Unit,
+    initialTask: Task.CalendarTaskEntity,
+    onConfirm: (Task.CalendarTaskEntity) -> Unit,
     onDismiss: () -> Unit,
     isEditMode: Boolean = false,
 ) {
@@ -105,8 +105,8 @@ fun CalendarTaskDialog(
 
 @Composable
 fun FourQuadrantTaskDialog(
-    initialTask: Task.FourQuadrantTask,
-    onConfirm: (Task.FourQuadrantTask) -> Unit,
+    initialTask: Task.FourQuadrantTaskEntity,
+    onConfirm: (Task.FourQuadrantTaskEntity) -> Unit,
     onDismiss: () -> Unit,
     isEditMode: Boolean = false,
 ) {
