@@ -55,15 +55,15 @@
     @androidx.compose.runtime.ReadOnlyComposable <methods>;
 }
 
-# 保留 TasksBackup 数据类
--keep class pers.optsimauth.todolist.backup.BackupManagerKt { *; }
-
-# 保留 Task 及其内部类
--keep class pers.optsimauth.todolist.entity.Task { *; }
--keep class pers.optsimauth.todolist.entity.Task$* { *; }
-
-# 保留 NoteEntity 类及其成员
--keep class pers.optsimauth.todolist.entity.NoteEntity { *; }
+## 保留 TasksBackup 数据类
+#-keep class pers.optsimauth.todolist.backup.BackupManagerKt { *; }
+#
+## 保留 Task 及其内部类
+#-keep class pers.optsimauth.todolist.entity.Task { *; }
+#-keep class pers.optsimauth.todolist.entity.Task$* { *; }
+#
+## 保留 NoteEntity 类及其成员
+#-keep class pers.optsimauth.todolist.entity.NoteEntity { *; }
 
 # GSON 相关规则
 -keepattributes Signature
@@ -94,12 +94,12 @@
 
 # 保留特定包下的类及其字段名
 -keep class pers.optsimauth.todolist.entity.** { *; }
--keepclassmembers class pers.optsimauth.todolist.entity.** {
-    <fields>;
-}
+#-keepclassmembers class pers.optsimauth.todolist.entity.** {
+#    <fields>;
+#}
 
 
 -keep class pers.optsimauth.todolist.backup.** { *; }
--keepclassmembers class pers.optsimauth.todolist.backup.** {
-    <fields>;
-}
+#-keepclassmembers class pers.optsimauth.todolist.backup.** {
+#    <fields>;
+#}
