@@ -1,10 +1,11 @@
 package pers.optsimauth.todolist.viewmodel
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import pers.optsimauth.todolist.dao.FourQuadrantTaskDao
 import pers.optsimauth.todolist.entity.Task
@@ -12,9 +13,22 @@ import pers.optsimauth.todolist.entity.Task
 class FourQuadrantTaskViewModel(private val dao: FourQuadrantTaskDao) : ViewModel() {
 
 
+    // Get all tasks
+    private val _allItems = mutableStateListOf<Task.FourQuadrantTaskEntity>()
+
+
+    init {
+        viewModelScope.launch {
+            dao.getAllItems().collectLatest { tasks ->
+                _allItems.clear()
+                _allItems.addAll(tasks) // Add new task list
+            }
+        }
+    }
+
     // Get tasks by quadrant
-    fun getTasksByQuadrant(quadrant: Int): Flow<List<Task.FourQuadrantTaskEntity>> {
-        return dao.getTasksByQuadrant(quadrant)
+    fun getTasksByQuadrant(quadrant: Int): List<Task.FourQuadrantTaskEntity> {
+        return _allItems.filter { it.quadrant == quadrant }
 
     }
 

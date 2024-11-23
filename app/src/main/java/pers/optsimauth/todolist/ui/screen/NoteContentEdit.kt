@@ -1,18 +1,28 @@
 package pers.optsimauth.todolist.ui.screen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldDecorator
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Redo
-import androidx.compose.material.icons.automirrored.filled.Undo
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,219 +31,245 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import pers.optsimauth.todolist.Utils
-import pers.optsimauth.todolist.config.colorscheme.onSurface
-import pers.optsimauth.todolist.config.colorscheme.primary
 import pers.optsimauth.todolist.entity.NoteEntity
 import java.time.LocalDateTime
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun NoteContentEdit(
     noteEntity: NoteEntity?,
-    onSave: (NoteEntity) -> Unit,
     onDelete: () -> Unit,
-    onBack: () -> Unit
+    onBack: (NoteEntity) -> Unit
 ) {
-    // 保存编辑历史用于撤销功能
-    val editHistory = remember { mutableStateListOf(TextFieldValue(noteEntity?.content ?: "")) }
-    var currentHistoryIndex by remember { mutableIntStateOf(0) }
-
-    var textState by remember { mutableStateOf(TextFieldValue(noteEntity?.content ?: "")) }
-    var titleState by remember { mutableStateOf(TextFieldValue(noteEntity?.title ?: "")) }
-
-
-    // 用于控制键盘显示
-//    val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
-
-
-    // 撤销功能
-    fun undo() {
-        if (currentHistoryIndex > 0) {
-            currentHistoryIndex--
-            textState = editHistory[currentHistoryIndex]
-        }
+    val noteState by remember {
+        mutableStateOf(
+            NoteState.Edit(
+                titleState = TextFieldState(initialText = noteEntity?.title ?: ""),
+                contentState = TextFieldState(initialText = noteEntity?.content ?: "")
+            )
+        )
     }
-
-    // 重做功能
-    fun redo() {
-        if (currentHistoryIndex < editHistory.size - 1) {
-            currentHistoryIndex++
-            textState = editHistory[currentHistoryIndex]
-        }
-    }
+    val lazyListState = rememberLazyListState()
 
     BackHandler {
-        onBack()
+        onBack(
+            NoteEntity(
+                id = noteEntity?.id ?: 0,
+                title = noteState.titleState.text.toString(),
+                content = noteState.contentState.text.toString(),
+                updateDateTime = LocalDateTime.now().format(Utils.getMyDatetimeFormatter())
+            )
+        )
     }
 
     Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .shadow(4.dp, clip = false),
+        containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             TopAppBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(elevation = 2.dp),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.primary,
+                    actionIconContentColor = MaterialTheme.colorScheme.primary
+                ),
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
-                    }
-                },
-                actions = {
-                    // 撤销按钮
-                    IconButton(
-                        onClick = { undo() },
-                        enabled = currentHistoryIndex > 0
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.Undo,
-                            contentDescription = "撤销",
-                            tint = if (currentHistoryIndex > 0)
-                                primary
-                            else onSurface.copy(alpha = 0.38f)
-                        )
-                    }
-
-                    // 重做按钮
-                    IconButton(onClick = { redo() }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.Redo,
-                            contentDescription = "重做",
-                            tint = if (currentHistoryIndex < editHistory.size - 1)
-                                primary
-                            else onSurface.copy(alpha = 0.38f)
-                        )
-                    }
-
-
-                    //删除按钮
-                    if (noteEntity != null) {
-                        IconButton(onClick = onDelete) {
-                            Icon(
-                                Icons.Default.Delete, contentDescription = "删除", tint = Color.Red
-                            )
-
-                        }
-                    }
-
-                    // 保存按钮
                     IconButton(
                         onClick = {
-                            focusManager.clearFocus()
-                            onSave(
+                            onBack(
                                 NoteEntity(
                                     id = noteEntity?.id ?: 0,
-                                    title = titleState.text,
-                                    content = textState.text,
+                                    title = noteState.titleState.text.toString(),
+                                    content = noteState.contentState.text.toString(),
                                     updateDateTime = LocalDateTime.now()
                                         .format(Utils.getMyDatetimeFormatter())
                                 )
                             )
                         }
                     ) {
-                        Icon(Icons.Default.Check, contentDescription = "完成")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "返回",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                actions = {
+                    if (noteEntity != null) {
+                        IconButton(onClick = onDelete) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "删除",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             )
         }
     ) { paddingValues ->
-        Box(
+        MainBody(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background)
+                .padding(top = paddingValues.calculateTopPadding())
+                .imePadding(),
+            state = noteState,
+            blockColumnState = lazyListState,
+            noteEntity = noteEntity
+        )
+    }
+}
+
+@Composable
+fun StyledTextField(
+    textFieldState: TextFieldState,
+    modifier: Modifier = Modifier,
+    decorator: TextFieldDecorator,
+    textStyle: TextStyle,
+    minHeight: Dp = 56.dp,
+    focusRequester: FocusRequester = remember { FocusRequester() },
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) {
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    val borderColor by animateColorAsState(
+        if (isFocused) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
+        label = "borderColor"
+    )
+
+    Box(
+        modifier = modifier
+            .heightIn(min = minHeight)
+            .border(
+                width = 1.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(12.dp)
+            )
+    ) {
+        BasicTextField(
+            state = textFieldState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .focusRequester(focusRequester),
+            textStyle = textStyle,
+            interactionSource = interactionSource,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            decorator = decorator
+        )
+    }
+}
+
+@Composable
+fun MainBody(
+    modifier: Modifier = Modifier,
+    state: NoteState.Edit,
+    blockColumnState: LazyListState = rememberLazyListState(),
+    noteEntity: NoteEntity?
+) {
+    val focusRequester = remember { FocusRequester() }
+    val titleInteractionSource = remember { MutableInteractionSource() }
+    val contentInteractionSource = remember { MutableInteractionSource() }
+
+    Box(modifier = modifier) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            state = blockColumnState,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column {
-                BasicTextField(
-                    value = titleState,
-                    onValueChange = { newValue ->
-                        //判断是否通过redo或undo操作修改文本而不是用户输入
-                        titleState = newValue
-                    }, modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-//                        .focusRequester(focusRequester)
-                    ,
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                    decorationBox = { innerTextField ->
-                        Box {
-                            innerTextField()
-                            if (titleState.text.isEmpty()) {
-                                Text(
-                                    text = "标题",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                )
-                            }
-                        }
-                    }
-                )
-                BasicTextField(
-                    value = textState,
-                    onValueChange = { newValue ->
-
-                        //判断是否通过redo或undo操作修改文本而不是用户输入
-                        textState = newValue
-
-                        if (newValue != editHistory.getOrNull(
-                                currentHistoryIndex
+            item {
+                StyledTextField(
+                    textFieldState = state.titleState,
+                    decorator = {
+                        if (state.titleState.text.isEmpty()) {
+                            Text(
+                                text = "Title",
+                                color = MaterialTheme.colorScheme.outline,
+                                style = MaterialTheme.typography.titleLarge
                             )
-                        ) {
-                            currentHistoryIndex++
-                            editHistory.add(currentHistoryIndex, newValue)
-                            // 移除当前位置之后的历史记录
-                            while (editHistory.size - 1 > currentHistoryIndex) {
-                                editHistory.removeAt(editHistory.size - 1)
-                            }
                         }
-
-
+                        it()
                     },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-//                        .focusRequester(focusRequester)
-                    ,
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    textStyle = MaterialTheme.typography.titleLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface
                     ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                    decorationBox = { innerTextField ->
-                        Box {
-                            innerTextField()
-                            if (textState.text.isEmpty()) {
-                                Text(
-                                    text = "输入内容",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                )
-                            }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    interactionSource = titleInteractionSource,
+                )
+            }
+
+            item {
+                StyledTextField(
+                    textFieldState = state.contentState,
+
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        lineHeight = 24.sp
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    interactionSource = contentInteractionSource,
+                    focusRequester = focusRequester,
+                    decorator = {
+                        if (state.contentState.text.isEmpty()) {
+                            Text(
+                                text = "Write down your opinions here",
+                                color = MaterialTheme.colorScheme.outline
+                            )
                         }
+                        it()
                     }
                 )
+            }
+        }
 
+        LaunchedEffect(Unit) {
+            if (noteEntity == null) {
+                focusRequester.requestFocus()
             }
         }
     }
-
-    LaunchedEffect(Unit) {
-//        if (noteEntity == null) {
-//            focusRequester.requestFocus()
-//        }
-    }
 }
+
+sealed class NoteState {
+    data class Edit(
+        val titleState: TextFieldState,
+        val contentState: TextFieldState
+    ) : NoteState()
+}
+
+
+
+
+
+

@@ -4,12 +4,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pers.optsimauth.todolist.dao.NoteDao
 import pers.optsimauth.todolist.entity.NoteEntity
 
 class NoteViewModel(private val dao: NoteDao) : ViewModel() {
+
+    private val _allItems = mutableListOf<NoteEntity>()
+
+    init {
+        viewModelScope.launch {
+            dao.getAllItems().collectLatest { items ->
+                _allItems.addAll(items) // Add new item list
+            }
+        }
+    }
 
     // Insert a new note
     fun insert(noteEntity: NoteEntity) {

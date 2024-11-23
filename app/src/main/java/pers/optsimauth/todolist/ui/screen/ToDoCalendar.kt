@@ -31,8 +31,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -75,6 +76,7 @@ import java.util.Locale
 @Composable
 fun ToDoCalendar(
     onDateFocused: (LocalDate) -> Unit,
+    onWeekButtonFiveClick: () -> Unit,
     calendarTaskViewModel: CalendarTaskViewModel,
 ) {
     var isMonthView by remember { mutableStateOf(true) }
@@ -83,6 +85,7 @@ fun ToDoCalendar(
     Column(modifier = Modifier.fillMaxSize()) {
         CalendarHeader(
             isMonthView = isMonthView,
+            onFiveClick = {},
             onViewTypeChange = { isMonthView = it }
         )
 
@@ -101,8 +104,12 @@ fun ToDoCalendar(
 @Composable
 private fun CalendarHeader(
     isMonthView: Boolean,
+    onFiveClick: () -> Unit,
     onViewTypeChange: (Boolean) -> Unit,
 ) {
+
+    var lastClickTime by remember { mutableLongStateOf(0L) }
+    var ClickCount by remember { mutableIntStateOf(0) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -119,7 +126,24 @@ private fun CalendarHeader(
             CalendarViewButton(
                 isSelected = !isMonthView,
                 icon = Icons.Default.CalendarViewWeek,
-                onClick = { onViewTypeChange(false) }
+                onClick = {
+                    onViewTypeChange(false)
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastClickTime > 1000) {
+                        ClickCount = 1
+                    } else {
+                        ClickCount++
+                    }
+                    lastClickTime = currentTime
+
+                    if (ClickCount >= 5) {
+                        ClickCount = 0
+                        onFiveClick()
+
+
+                    }
+
+                }
             )
             CalendarViewButton(
                 isSelected = isMonthView,
@@ -315,8 +339,8 @@ private fun DayContent(
     focusedDate: LocalDate,
     onDateFocused: (LocalDate) -> Unit,
 ) {
-    val calendarTaskList by calendarTaskViewModel.getTasksByDay(date.toString())
-        .collectAsState(initial = emptyList())
+    val calendarTaskList = calendarTaskViewModel.getTasksByDay(date.toString())
+
 
     val isToday = remember(date) { date == LocalDate.now() }
     val isFocused = date == focusedDate
@@ -418,8 +442,8 @@ private fun CalendarTasksList(
     focusedDate: LocalDate,
     calendarTaskViewModel: CalendarTaskViewModel,
 ) {
-    val tasks by calendarTaskViewModel.getTasksByDay(focusedDate.toString())
-        .collectAsState(initial = emptyList())
+    val tasks =
+        calendarTaskViewModel.getTasksByDay(focusedDate.toString())
 
     CalendarTasksList(
         tasks = tasks,

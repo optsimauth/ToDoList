@@ -3,5 +3,5 @@
     <!--    android:Theme.Material.Light.NoActionBar-->
     <style name="Theme.ToDoList" parent="Theme.MaterialComponents.Light.DarkActionBar" />
 
-    
+
 </resources>

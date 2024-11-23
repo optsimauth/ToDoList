@@ -1,11 +1,13 @@
 package pers.optsimauth.todolist.viewmodel
 
 import android.content.Context
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pers.optsimauth.todolist.DatabaseUtils
@@ -16,9 +18,23 @@ import pers.optsimauth.todolist.entity.Task
 class CalendarTaskViewModel(private val dao: CalendarTaskDao) : ViewModel() {
 
 
+    private val _allItems = mutableStateListOf<Task.CalendarTaskEntity>()
+    private val _tasksByDay = mutableStateMapOf<String, MutableList<Task.CalendarTaskEntity>>()
+
+    init {
+        viewModelScope.launch {
+            dao.getAllItems().collectLatest { tasks ->
+                _tasksByDay.clear()
+                tasks.forEach { task ->
+                    _tasksByDay.getOrPut(task.day) { mutableListOf() }.add(task)
+                }
+            }
+        }
+    }
+
     // Get tasks for a specific day
-    fun getTasksByDay(day: String): Flow<List<Task.CalendarTaskEntity>> {
-        return dao.getTasksByDay(day)
+    fun getTasksByDay(day: String): List<Task.CalendarTaskEntity> {
+        return _tasksByDay[day] ?: emptyList()
     }
 
     // Insert a new task

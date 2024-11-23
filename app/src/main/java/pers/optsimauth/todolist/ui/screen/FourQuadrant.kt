@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -28,7 +27,7 @@ fun FourQuadrant(
     //onQuadrantFocused是为了让FloatingActionButton知道当前是哪个象限被选中，用于添加任务
     //focusedQuadrant是为了让FourQuadrant组件知道当前是哪个象限被选中，用于高亮显示
 
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,10 +42,7 @@ fun FourQuadrant(
         Row(modifier = Modifier.weight(1f)) {
             Quadrant(
                 quadrantTitle = "重要且紧急",
-                tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(1)
-                    .collectAsState(
-                        initial = emptyList()
-                    ).value,
+                tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(1),
                 quadrant = 1,
                 isFocused = focusedQuadrant == 1,
                 onQuadrantClick = { quadrant ->
@@ -61,10 +57,7 @@ fun FourQuadrant(
             )
             Quadrant(
                 quadrantTitle = "重要不紧急",
-                tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(2)
-                    .collectAsState(
-                        initial = emptyList()
-                    ).value,
+                tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(2),
                 quadrant = 2,
                 isFocused = focusedQuadrant == 2,
                 onQuadrantClick = { quadrant ->
@@ -78,10 +71,7 @@ fun FourQuadrant(
         Row(modifier = Modifier.weight(1f)) {
             Quadrant(
                 quadrantTitle = "不重要但紧急",
-                tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(3)
-                    .collectAsState(
-                        initial = emptyList()
-                    ).value,
+                tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(3),
                 quadrant = 3,
                 isFocused = focusedQuadrant == 3,
                 onQuadrantClick = { quadrant ->
@@ -93,10 +83,7 @@ fun FourQuadrant(
             )
             Quadrant(
                 quadrantTitle = "不重要不紧急",
-                tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(4)
-                    .collectAsState(
-                        initial = emptyList()
-                    ).value,
+                tasks = fourQuadrantTaskViewModel.getTasksByQuadrant(4),
                 quadrant = 4,
                 isFocused = focusedQuadrant == 4,
                 onQuadrantClick = { quadrant ->

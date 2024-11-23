@@ -76,7 +76,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)  // 确保使用的 UI 版本一致
     implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
+//    implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
@@ -92,15 +92,18 @@ dependencies {
     // Room Library
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.tools.core)
     kapt("androidx.room:room-compiler:2.6.1")
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.0.21")
 
     implementation("androidx.work:work-runtime-ktx:2.8.1")
     implementation("de.raphaelebner:roomdatabasebackup:1.0.1")
+    implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc10")
+    implementation("androidx.compose.material:material:1.4.3")
 
-//
 //    implementation("com.google.code.gson:gson:2.8.9")
 //    implementation("com.google.code.gson:gson-extras:2.8.9")
-
 }
