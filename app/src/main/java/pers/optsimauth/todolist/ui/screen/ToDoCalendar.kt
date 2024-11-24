@@ -85,7 +85,7 @@ fun ToDoCalendar(
     Column(modifier = Modifier.fillMaxSize()) {
         CalendarHeader(
             isMonthView = isMonthView,
-            onFiveClick = {},
+            onWeekButtonFiveClick = onWeekButtonFiveClick,
             onViewTypeChange = { isMonthView = it }
         )
 
@@ -104,12 +104,12 @@ fun ToDoCalendar(
 @Composable
 private fun CalendarHeader(
     isMonthView: Boolean,
-    onFiveClick: () -> Unit,
+    onWeekButtonFiveClick: () -> Unit,
     onViewTypeChange: (Boolean) -> Unit,
 ) {
 
     var lastClickTime by remember { mutableLongStateOf(0L) }
-    var ClickCount by remember { mutableIntStateOf(0) }
+    var clickCount by remember { mutableIntStateOf(0) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,17 +130,15 @@ private fun CalendarHeader(
                     onViewTypeChange(false)
                     val currentTime = System.currentTimeMillis()
                     if (currentTime - lastClickTime > 1000) {
-                        ClickCount = 1
+                        clickCount = 1
                     } else {
-                        ClickCount++
+                        clickCount++
                     }
                     lastClickTime = currentTime
 
-                    if (ClickCount >= 5) {
-                        ClickCount = 0
-                        onFiveClick()
-
-
+                    if (clickCount >= 5) {
+                        clickCount = 0
+                        onWeekButtonFiveClick()
                     }
 
                 }

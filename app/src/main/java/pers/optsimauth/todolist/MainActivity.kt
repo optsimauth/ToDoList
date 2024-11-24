@@ -3,7 +3,6 @@ package pers.optsimauth.todolist
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
@@ -36,11 +35,16 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -69,8 +73,10 @@ class MainActivity : ComponentActivity() {
         ContextHolder.initialize(this)
         viewModel.initializeAndCleanup(this)
 
+        installSplashScreen()
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
-        enableEdgeToEdge()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+//        enableEdgeToEdge()
         setContent {
             ToDoListTheme {
                 App(viewModel)
@@ -161,21 +167,18 @@ fun MainScreen(
     viewModel: MainViewModel,
     onNavigateToNoteEdit: () -> Unit
 ) {
-
-
     val pages = listOf(
         PageItem(RouteManager.ToDoCalendar, "日历", Icons.Default.CalendarMonth),
         PageItem(RouteManager.FourQuadrant, "四象限", Icons.Default.BorderAll),
         PageItem(RouteManager.Note, "笔记", Icons.Default.NoteAlt)
     )
+
+    // 使用targetPage来立即更新选中状态
     val pagerState = rememberPagerState(pageCount = { pages.size })
+    var targetPage by remember { mutableStateOf(pagerState.currentPage) }
     val coroutineScope = rememberCoroutineScope()
 
-    var currentRoute = remember { RouteManager.ToDoCalendar }
-
     Scaffold(
-//        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-
         bottomBar = {
             NavigationBar(
                 modifier = Modifier
@@ -184,9 +187,13 @@ fun MainScreen(
             ) {
                 pages.forEachIndexed { index, pageItem ->
                     NavigationBarItem(
-                        selected = pagerState.currentPage == index,
+                        // 使用targetPage而不是currentPage来控制selected状态
+                        selected = targetPage == index,
                         onClick = {
+                            // 立即更新targetPage
+                            targetPage = index
                             coroutineScope.launch {
+                                // 使用animateScrollToPage的overScrollRaw参数来避免中间状态
                                 pagerState.animateScrollToPage(index, animationSpec = tween(400))
                             }
                         },
@@ -201,18 +208,10 @@ fun MainScreen(
                 shape = CircleShape,
                 modifier = Modifier.padding(8.dp),
                 onClick = {
-                    when (currentRoute) {
-                        RouteManager.ToDoCalendar -> {
-                            viewModel.showCalendarDialog()
-                        }
-
-                        RouteManager.FourQuadrant -> {
-                            viewModel.showQuadrantDialog()
-                        }
-
-                        RouteManager.Note -> {
-                            onNavigateToNoteEdit()
-                        }
+                    when (pages[targetPage].route) {
+                        RouteManager.ToDoCalendar -> viewModel.showCalendarDialog()
+                        RouteManager.FourQuadrant -> viewModel.showQuadrantDialog()
+                        RouteManager.Note -> onNavigateToNoteEdit()
                     }
                 }
             ) {
@@ -225,15 +224,15 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
+            // 禁用用户滑动
             userScrollEnabled = false
         ) { page ->
-            currentRoute = pages[page].route
             when (pages[page].route) {
                 RouteManager.ToDoCalendar -> {
                     ToDoCalendar(
                         onDateFocused = viewModel::onDateFocused,
                         calendarTaskViewModel = viewModel.calendarTaskViewModel,
-                        onWeekButtonFiveClick = viewModel::launchFilePicker,
+                        onWeekButtonFiveClick = viewModel::launchFilePicker
                     )
                 }
 
@@ -251,7 +250,7 @@ fun MainScreen(
                             viewModel.setNoteEntity(noteEntity)
                             onNavigateToNoteEdit()
                         },
-                        onNoteItemDelete = {},
+                        onNoteItemDelete = {}
                     )
                 }
             }

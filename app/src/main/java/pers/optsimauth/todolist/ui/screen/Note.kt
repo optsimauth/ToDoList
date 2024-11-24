@@ -100,9 +100,10 @@ fun NoteCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // 标题部分
-            val title = noteEntity.title.ifBlank {
-                noteEntity.content.split("\n").firstOrNull() ?: ""
-            }
+            val title = noteEntity.title
+//                .ifBlank {
+//                noteEntity.content.split("\n").firstOrNull() ?: ""
+//            }
 
             Text(
                 text = title,
@@ -114,10 +115,6 @@ fun NoteCard(
 
             // 内容部分
             val content = noteEntity.content
-                .substringAfter(title)
-                .trimStart()
-                .takeIf { it.isNotBlank() }
-                ?: "无内容"
 
             Text(
                 text = content,

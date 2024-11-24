@@ -83,7 +83,7 @@ dependencies {
     implementation(libs.places)  // 确保这个库是否需要
     implementation(libs.litert)  // 确保这个库是否需要
     implementation("androidx.compose.material:material-icons-extended")  // 注意这个是否被使用
-    implementation("com.google.android.material:material:1.10.0")
+    implementation("com.google.android.material:material:1.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
     implementation("com.kizitonwose.calendar:compose:2.6.0")
     implementation("com.google.accompanist:accompanist-permissions:0.36.0")
@@ -103,7 +103,7 @@ dependencies {
     implementation("de.raphaelebner:roomdatabasebackup:1.0.1")
     implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc10")
     implementation("androidx.compose.material:material:1.4.3")
-
+    implementation("androidx.core:core-splashscreen:1.0.1")
 //    implementation("com.google.code.gson:gson:2.8.9")
 //    implementation("com.google.code.gson:gson-extras:2.8.9")
 }
